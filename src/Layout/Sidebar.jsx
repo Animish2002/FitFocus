@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Brain, Home, Calendar, Dumbbell, BookOpen, Target, TrendingUp, Settings, HelpCircle } from "lucide-react";
+import { Link, useLocation } from "react-router-dom"; // Import Link and useLocation
 
 // Custom SVG for AI Assistant icon
 const AIAssistantSVG = () => (
@@ -17,32 +18,33 @@ const AIAssistantSVG = () => (
   </svg>
 );
 
-// Navigation items configuration
+// Navigation items configuration with their respective paths
 const navigationItems = [
-  { id: "dashboard", label: "Dashboard", icon: Home, badge: null },
-  { id: "schedule", label: "Today's Schedule", icon: Calendar, badge: "3" },
-  { id: "fitness", label: "Fitness Tracker", icon: Dumbbell, badge: null },
-  { id: "study", label: "Study Progress", icon: BookOpen, badge: "2" },
-  { id: "goals", label: "Goals & Targets", icon: Target, badge: null },
-  // { id: "analytics", label: "Analytics", icon: TrendingUp, badge: null },
-  // New AI Assistant page added to navigation
-  { id: "ask-ai", label: "Ask AI Assistant", icon: Brain, badge: null },
+  { id: "dashboard", label: "Dashboard", icon: Home, badge: null, path: "/dashboard" },
+  { id: "schedule", label: "Today's Schedule", icon: Calendar, badge: "3", path: "/dashboard/schedule" },
+  { id: "fitness", label: "Fitness Tracker", icon: Dumbbell, badge: null, path: "/dashboard/fitness" },
+  { id: "study", label: "Study Progress", icon: BookOpen, badge: "2", path: "/dashboard/study" },
+  { id: "goals", label: "Goals & Targets", icon: Target, badge: null, path: "/dashboard/goals" },
+
+  { id: "ask-ai", label: "Ask AI Assistant", icon: Brain, badge: null, path: "/dashboard/ask-ai" },
 ];
 
-// Bottom navigation items configuration
+// Bottom navigation items configuration with their respective paths
 const bottomNavItems = [
-  { id: "settings", label: "Settings", icon: Settings },
-  // { id: "help", label: "Help & Support", icon: HelpCircle },
+  { id: "settings", label: "Settings", icon: Settings, path: "/dashboard/settings" }, // Added path
+
 ];
 
 // Sidebar functional component
-export function Sidebar({ activeTab, setActiveTab, className = "" }) {
+export function Sidebar({ className = "", onNavLinkClick }) { // Removed activeTab, setActiveTab props
+  const location = useLocation(); // Get current location to determine active tab
+
   return (
     <div className={`bg-gradient-to-b from-slate-900 to-slate-800 border-r border-white/10 ${className}`}>
       <div className="flex flex-col h-full">
         {/* Logo Section */}
         <div className="p-6 border-b border-white/10">
-          <div className="flex items-center space-x-3">
+          <Link to="/dashboard" className="flex items-center space-x-3"> {/* Link to dashboard home */}
             <div className="relative">
               <div className="w-10 h-10 bg-gradient-to-br from-[#3EB489] to-[#2ea374] rounded-xl flex items-center justify-center shadow-lg">
                 <Brain className="w-6 h-6 text-white" />
@@ -55,7 +57,7 @@ export function Sidebar({ activeTab, setActiveTab, className = "" }) {
               </h1>
               <p className="text-xs text-gray-400">AI-Powered Planning</p>
             </div>
-          </div>
+          </Link>
         </div>
 
         {/* Main Navigation Section */}
@@ -63,21 +65,24 @@ export function Sidebar({ activeTab, setActiveTab, className = "" }) {
           {navigationItems.map((item) => (
             <Button
               key={item.id}
-              variant={activeTab === item.id ? "secondary" : "ghost"}
-              className={`w-full justify-start h-12 text-left transition-all duration-200 rounded-lg ${ // Added rounded-lg
-                activeTab === item.id
+              // Determine if the current path matches the item's path for active state
+              variant={location.pathname === item.path ? "secondary" : "ghost"}
+              className={`w-full justify-start h-12 text-left transition-all duration-200 rounded-lg ${
+                location.pathname === item.path
                   ? "bg-[#3EB489]/20 text-[#3EB489] border-r-2 border-[#3EB489] hover:bg-[#3EB489]/30"
                   : "text-gray-300 hover:text-white hover:bg-white/5"
               }`}
-              onClick={() => setActiveTab(item.id)}
+              asChild // Render as a child of Link
             >
-              <item.icon className="w-5 h-5 mr-3 flex-shrink-0" />
-              <span className="flex-1">{item.label}</span>
-              {item.badge && (
-                <Badge variant="secondary" className="bg-[#3EB489] text-white text-xs">
-                  {item.badge}
-                </Badge>
-              )}
+              <Link to={item.path} onClick={onNavLinkClick}> {/* Use Link for navigation */}
+                <item.icon className="w-5 h-5 mr-3 flex-shrink-0" />
+                <span className="flex-1">{item.label}</span>
+                {item.badge && (
+                  <Badge variant="secondary" className="bg-[#3EB489] text-white text-xs">
+                    {item.badge}
+                  </Badge>
+                )}
+              </Link>
             </Button>
           ))}
         </nav>
@@ -90,18 +95,22 @@ export function Sidebar({ activeTab, setActiveTab, className = "" }) {
             <Button
               key={item.id}
               variant="ghost"
-              className="w-full justify-start h-12 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg" // Added rounded-lg
-              onClick={() => setActiveTab(item.id)}
+              className={`w-full justify-start h-12 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg ${
+                location.pathname === item.path ? "bg-white/5 text-white" : "" // Highlight if active
+              }`}
+              asChild
             >
-              <item.icon className="w-5 h-5 mr-3" />
-              {item.label}
+              <Link to={item.path} onClick={onNavLinkClick}> {/* Use Link for navigation */}
+                <item.icon className="w-5 h-5 mr-3" />
+                {item.label}
+              </Link>
             </Button>
           ))}
         </div>
 
         {/* AI Assistant Card - now a direct link to the Ask AI page */}
         <div className="p-4">
-          <Card className="bg-gradient-to-br from-[#3EB489]/20 to-[#2ea374]/10 border-[#3EB489]/30 rounded-xl"> {/* Added rounded-xl */}
+          <Card className="bg-gradient-to-br from-[#3EB489]/20 to-[#2ea374]/10 border-[#3EB489]/30 rounded-xl">
             <CardContent className="p-4">
               <div className="flex items-start space-x-3">
                 <div className="w-8 h-8 bg-[#3EB489]/20 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -114,10 +123,12 @@ export function Sidebar({ activeTab, setActiveTab, className = "" }) {
                   </p>
                   <Button
                     size="sm"
-                    className="bg-[#3EB489] hover:bg-[#2ea374] text-white h-8 rounded-md" // Added rounded-md
-                    onClick={() => setActiveTab("ask-ai")} // Directs to the Ask AI page
+                    className="bg-[#3EB489] hover:bg-[#2ea374] text-white h-8 rounded-md"
+                    asChild
                   >
-                    Ask AI
+                    <Link to="/dashboard/ask-ai" onClick={onNavLinkClick}> {/* Use Link for navigation */}
+                      Ask AI
+                    </Link>
                   </Button>
                 </div>
               </div>
