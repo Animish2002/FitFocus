@@ -20,8 +20,10 @@ import {
   Globe,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 export default function LandingPage() {
+  const navigate = useNavigate();
   const fadeInUp = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
@@ -173,7 +175,7 @@ export default function LandingPage() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Button className="bg-gradient-to-r from-[#3EB489] to-[#2ea374] hover:from-[#2ea374] hover:to-[#3EB489] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                <Button onClick={() => navigate("/auth")} className="cursor-pointer bg-gradient-to-r from-[#3EB489] to-[#2ea374] hover:from-[#2ea374] hover:to-[#3EB489] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300">
                   Get Started
                 </Button>
               </motion.div>
