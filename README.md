@@ -21,7 +21,7 @@ An AI-powered personal productivity planner built to help students like me balan
 |-------------|----------------------------|
 | Frontend    | React, Tailwind CSS        |
 | Backend     | Node.js, Express           |
-| AI API      | OpenAI (GPT-3.5 Turbo)     |
+| AI API      | Mistral.ai                 |
 | Auth & DB   | Supabase (optional)        |
 | Deployment  | Vercel (Frontend), Render (Backend) |
 
