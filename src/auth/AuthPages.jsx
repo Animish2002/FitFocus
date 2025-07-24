@@ -157,7 +157,6 @@ export default function AuthPages() {
               <div className="w-12 h-12 bg-gradient-to-br from-[#3EB489] to-[#2ea374] rounded-2xl flex items-center justify-center shadow-lg">
                 <Brain className="w-7 h-7 text-white" />
               </div>
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-[#3EB489] rounded-full animate-pulse"></div>
             </div>
             <span className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
               FitFocus
@@ -301,7 +300,6 @@ export default function AuthPages() {
               <div className="w-12 h-12 bg-gradient-to-br from-[#3EB489] to-[#2ea374] rounded-2xl flex items-center justify-center shadow-lg">
                 <Brain className="w-7 h-7 text-white" />
               </div>
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-[#3EB489] rounded-full animate-pulse"></div>
             </div>
             <span className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
               FitFocus
@@ -518,13 +516,13 @@ export default function AuthPages() {
     >
       <div className="space-y-6">
         <motion.h2
-          className="text-4xl font-bold"
+          className="text-4xl font-medium"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.6 }}
         >
           Transform Your{" "}
-          <span className="bg-gradient-to-r from-[#3EB489] to-[#2ea374] bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-[#3EB489] to-[#2ea374] bg-clip-text text-transparent bitcount-grid-single-hero">
             Daily Routine
           </span>
         </motion.h2>
