@@ -9,13 +9,14 @@ import { DashboardLayout } from "@/Layout/DashboardLayout";
 
 // Import your dashboard content pages
 import { DashboardContent } from "@/Dashboard/DashboardContent";
-import { AskAIPage } from "@/Dashboard/AskAIPage";
+import { SmartAssistantPage } from "@/Dashboard/SmartAssistantPage";
 import { TodaysSchedulePage } from "@/Dashboard/TodaysSchedulePage";
 import { FitnessTrackerPage } from "@/Dashboard/FitnessTrackerPage";
 import { StudyProgressPage } from "@/Dashboard/StudyProgressPage";
 import { GoalsTargetsPage } from "@/Dashboard/GoalsTargetsPage";
 import NotFoundPage from "./Dashboard/NotFoundPage";
 import ProfilePage from "./Dashboard/Profile";
+import { GeneralChatPage } from "./Dashboard/GeneralChatPage";
 
 function App() {
   return (
@@ -31,7 +32,11 @@ function App() {
                 {/* DashboardLayout wraps content */}
                 {/* Index route for /dashboard will render DashboardContent */}
                 <Route index element={<DashboardContent />} />
-                <Route path="ask-ai" element={<AskAIPage />} />
+                <Route
+                  path="smart-assistant"
+                  element={<SmartAssistantPage />}
+                />
+                <Route path="general-assistant" element={<GeneralChatPage />} />
                 <Route path="schedule" element={<TodaysSchedulePage />} />
                 <Route path="fitness" element={<FitnessTrackerPage />} />
                 <Route path="study" element={<StudyProgressPage />} />

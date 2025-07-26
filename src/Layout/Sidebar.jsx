@@ -4,7 +4,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Brain, Home, Calendar, Dumbbell, BookOpen, Target, TrendingUp, Settings, HelpCircle } from "lucide-react";
+import {
+  Brain,
+  Home,
+  Calendar,
+  Dumbbell,
+  BookOpen,
+  Target,
+  TrendingUp,
+  Settings,
+  HelpCircle,
+  ChartArea,
+  MessageSquareCode,
+} from "lucide-react";
 import { Link, useLocation } from "react-router-dom"; // Import Link and useLocation
 
 // Custom SVG for AI Assistant icon
@@ -20,31 +32,82 @@ const AIAssistantSVG = () => (
 
 // Navigation items configuration with their respective paths
 const navigationItems = [
-  { id: "dashboard", label: "Dashboard", icon: Home, badge: null, path: "/dashboard" },
-  { id: "schedule", label: "Today's Schedule", icon: Calendar, badge: "3", path: "/dashboard/schedule" },
-  { id: "fitness", label: "Fitness Tracker", icon: Dumbbell, badge: null, path: "/dashboard/fitness" },
-  { id: "study", label: "Study Progress", icon: BookOpen, badge: "2", path: "/dashboard/study" },
-  { id: "goals", label: "Goals & Targets", icon: Target, badge: null, path: "/dashboard/goals" },
-
-  { id: "ask-ai", label: "Ask AI Assistant", icon: Brain, badge: null, path: "/dashboard/ask-ai" },
+  {
+    id: "dashboard",
+    label: "Dashboard",
+    icon: Home,
+    badge: null,
+    path: "/dashboard",
+  },
+  {
+    id: "schedule",
+    label: "Today's Schedule",
+    icon: Calendar,
+    badge: "3",
+    path: "/dashboard/schedule",
+  },
+  {
+    id: "fitness",
+    label: "Fitness Tracker",
+    icon: Dumbbell,
+    badge: null,
+    path: "/dashboard/fitness",
+  },
+  {
+    id: "study",
+    label: "Study Progress",
+    icon: BookOpen,
+    badge: "2",
+    path: "/dashboard/study",
+  },
+  {
+    id: "goals",
+    label: "Goals & Targets",
+    icon: Target,
+    badge: null,
+    path: "/dashboard/goals",
+  },
+  {
+    id: "general-assistant",
+    label: "GeneralChatPage",
+    icon: MessageSquareCode,
+    badge: null,
+    path: "/dashboard/general-assistant",
+  },
+  {
+    id: "smart-assistant",
+    label: "Smart Assistant",
+    icon: Brain,
+    badge: null,
+    path: "/dashboard/smart-assistant",
+  },
 ];
 
 // Bottom navigation items configuration with their respective paths
 const bottomNavItems = [
-  { id: "settings", label: "Settings", icon: Settings, path: "/dashboard/profile" }, // Added path
-
+  {
+    id: "settings",
+    label: "Settings",
+    icon: Settings,
+    path: "/dashboard/profile",
+  }, // Added path
 ];
 
 // Sidebar functional component
-export function Sidebar({ className = "", onNavLinkClick }) { // Removed activeTab, setActiveTab props
+export function Sidebar({ className = "", onNavLinkClick }) {
+  // Removed activeTab, setActiveTab props
   const location = useLocation(); // Get current location to determine active tab
 
   return (
-    <div className={`bg-gradient-to-b from-slate-900 to-slate-800 border-r border-white/10 ${className}`}>
+    <div
+      className={`bg-gradient-to-b from-slate-900 to-slate-800 border-r border-white/10 ${className}`}
+    >
       <div className="flex flex-col h-full">
         {/* Logo Section */}
         <div className="p-6 border-b border-white/10">
-          <Link to="/dashboard" className="flex items-center space-x-3"> {/* Link to dashboard home */}
+          <Link to="/dashboard" className="flex items-center space-x-3">
+            {" "}
+            {/* Link to dashboard home */}
             <div className="relative">
               <div className="w-10 h-10 bg-gradient-to-br from-[#3EB489] to-[#2ea374] rounded-xl flex items-center justify-center shadow-lg">
                 <Brain className="w-6 h-6 text-white" />
@@ -74,11 +137,16 @@ export function Sidebar({ className = "", onNavLinkClick }) { // Removed activeT
               }`}
               asChild // Render as a child of Link
             >
-              <Link to={item.path} onClick={onNavLinkClick}> {/* Use Link for navigation */}
+              <Link to={item.path} onClick={onNavLinkClick}>
+                {" "}
+                {/* Use Link for navigation */}
                 <item.icon className="w-5 h-5 mr-3 flex-shrink-0" />
                 <span className="flex-1">{item.label}</span>
                 {item.badge && (
-                  <Badge variant="secondary" className="bg-[#3EB489] text-white text-xs">
+                  <Badge
+                    variant="secondary"
+                    className="bg-[#3EB489] text-white text-xs"
+                  >
                     {item.badge}
                   </Badge>
                 )}
@@ -100,7 +168,9 @@ export function Sidebar({ className = "", onNavLinkClick }) { // Removed activeT
               }`}
               asChild
             >
-              <Link to={item.path} onClick={onNavLinkClick}> {/* Use Link for navigation */}
+              <Link to={item.path} onClick={onNavLinkClick}>
+                {" "}
+                {/* Use Link for navigation */}
                 <item.icon className="w-5 h-5 mr-3" />
                 {item.label}
               </Link>
@@ -117,7 +187,9 @@ export function Sidebar({ className = "", onNavLinkClick }) { // Removed activeT
                   <AIAssistantSVG />
                 </div>
                 <div className="space-y-2">
-                  <h4 className="text-sm font-semibold text-white">AI Assistant</h4>
+                  <h4 className="text-sm font-semibold text-white">
+                    AI Assistant
+                  </h4>
                   <p className="text-xs text-gray-300">
                     Need help optimizing your schedule?
                   </p>
@@ -126,7 +198,9 @@ export function Sidebar({ className = "", onNavLinkClick }) { // Removed activeT
                     className="bg-[#3EB489] hover:bg-[#2ea374] text-white h-8 rounded-md"
                     asChild
                   >
-                    <Link to="/dashboard/ask-ai" onClick={onNavLinkClick}> {/* Use Link for navigation */}
+                    <Link to="/dashboard/ask-ai" onClick={onNavLinkClick}>
+                      {" "}
+                      {/* Use Link for navigation */}
                       Ask AI
                     </Link>
                   </Button>
