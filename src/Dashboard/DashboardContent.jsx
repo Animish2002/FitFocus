@@ -1,33 +1,32 @@
-// components/dashboard/DashboardContent.jsx
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom"; // Import Link for navigation
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
-import { Zap, Activity, Timer, Award, CheckCircle2, Clock, Dumbbell, BookOpen, MoreHorizontal } from "lucide-react";
+import {
+  Zap,
+  Activity,
+  Timer,
+  Award,
+  CheckCircle2,
+  Clock,
+  Dumbbell,
+  BookOpen,
+  MoreHorizontal,
+  Loader2,
+  XCircle,
+} from "lucide-react";
 
-// Mock data for dashboard
-const todaySchedule = [
-  { time: "06:00", activity: "Morning Workout", type: "fitness", status: "completed" },
-  { time: "08:30", activity: "QA Practice", type: "study", status: "completed" },
-  { time: "11:00", activity: "VARC Session", type: "study", status: "in-progress" },
-  { time: "16:00", activity: "Cardio Session", type: "fitness", status: "pending" },
-  { time: "19:00", activity: "DILR Practice", type: "study", status: "pending" },
-];
-
-const stats = [
-  { label: "Study Streak", value: "12", unit: "days", icon: Zap, color: "text-orange-500" },
-  { label: "Workout Streak", value: "8", unit: "days", icon: Activity, color: "text-[#3EB489]" },
-  { label: "Today's Focus", value: "4.2", unit: "hours", icon: Timer, color: "text-blue-500" },
-  { label: "Weekly Progress", value: "87", unit: "%", icon: Award, color: "text-purple-500" },
-];
-
-const recentAchievements = [
-  { title: "First Week Complete!", description: "Completed your first week of balanced routine", date: "2 days ago" },
-  { title: "Study Champion", description: "Maintained 7-day study streak", date: "5 days ago" },
-  { title: "Fitness Milestone", description: "Completed 10 workout sessions", date: "1 week ago" },
-];
+import { useAuth } from "@/context/AuthContext"; // Import useAuth
+import axiosInstance from "@/api/axiosInstance"; // Import axiosInstance
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -44,6 +43,108 @@ const staggerChildren = {
 };
 
 export function DashboardContent() {
+  const { user, logout } = useAuth();
+  const [dashboardSummary, setDashboardSummary] = useState(null);
+  const [todaySchedule, setTodaySchedule] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Derived state for dynamic stats cards
+  const [dynamicStats, setDynamicStats] = useState([]);
+
+  // Mock data for achievements (no backend API for this yet)
+  const recentAchievements = [
+    { title: "First Week Complete!", description: "Completed your first week of balanced routine", date: "2 days ago" },
+    { title: "Study Champion", description: "Maintained 7-day study streak", date: "5 days ago" },
+    { title: "Fitness Milestone", description: "Completed 10 workout sessions", date: "1 week ago" },
+  ];
+
+  // Function to fetch all dashboard data
+  const fetchDashboardData = async () => {
+    if (!user?.id) {
+      setError("User not logged in or context not loaded.");
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      // Fetch Dashboard Summary
+      const summaryResponse = await axiosInstance.get('/dashboard/summary');
+      setDashboardSummary(summaryResponse.data.summary);
+
+      // Fetch Today's Schedule
+      const today = new Date();
+      const todayDateString = today.toISOString().split('T')[0];
+      const scheduleResponse = await axiosInstance.get('/schedule/get-schedule', {
+        params: { date: todayDateString }
+      });
+      // Sort schedule items by time
+      const sortedSchedule = scheduleResponse.data.scheduleItems.sort((a, b) => {
+        const timeA = a.time.split(':').map(Number);
+        const timeB = b.time.split(':').map(Number);
+        if (timeA[0] !== timeB[0]) return timeA[0] - timeB[0];
+        return timeA[1] - timeB[1];
+      });
+      setTodaySchedule(sortedSchedule);
+
+    } catch (err) {
+      console.error("Error fetching dashboard data:", err);
+      setError(err.response?.data?.message || err.message || "Failed to load dashboard data.");
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        logout();
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [user?.id, logout]); // Re-fetch when user changes or logout function changes
+
+  // Effect to calculate dynamic stats once dashboardSummary and todaySchedule are available
+  useEffect(() => {
+    if (dashboardSummary && todaySchedule) {
+      const totalTodayFocusMinutes = todaySchedule
+        .filter(item => item.status === 'completed' && (item.type === 'fitness' || item.type === 'study'))
+        .reduce((sum, item) => sum + (item.durationMinutes || 0), 0); // Assuming schedule items might have durationMinutes in future
+
+      const overallGoalCompletion = dashboardSummary.goals.total > 0
+        ? Math.round((dashboardSummary.goals.completed / dashboardSummary.goals.total) * 100)
+        : 0;
+
+      setDynamicStats([
+        { label: "Activity Streak", value: dashboardSummary.streaks.scheduleCompletionDays, unit: "days", icon: Zap, color: "text-orange-500" },
+        { label: "Total Goals", value: dashboardSummary.goals.total, unit: "goals", icon: Award, color: "text-purple-500" },
+        { label: "Completed Today", value: dashboardSummary.todaySchedule.completed, unit: "items", icon: CheckCircle2, color: "text-[#3EB489]" },
+        { label: "Weekly Active", value: Math.round(((dashboardSummary.last7Days.totalFitnessMinutes + dashboardSummary.last7Days.totalStudyMinutes) / 60) * 10) / 10, unit: "hours", icon: Activity, color: "text-blue-500" },
+      ]);
+    }
+  }, [dashboardSummary, todaySchedule]);
+
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-slate-200">
+        <Loader2 className="mr-2 h-6 w-6 animate-spin text-[#3EB489]" />
+        <p>Loading dashboard data...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-red-400 text-center">
+        <XCircle className="w-5 h-5 mr-2" />
+        <p>{error}</p>
+      </div>
+    );
+  }
+
+  // Calculate pending activities for welcome message
+  const pendingActivitiesToday = dashboardSummary?.todaySchedule?.pending || 0;
+
   return (
     <motion.div
       className="space-y-8"
@@ -56,16 +157,18 @@ export function DashboardContent() {
         <div className="flex flex-col md:flex-row md:items-center justify-between space-y-4 md:space-y-0">
           <div>
             <h1 className="text-3xl font-bold text-white">
-              Good morning, <span className="text-[#3EB489]">Animish</span>! 👋
+              Good morning, <span className="text-[#3EB489]">{user?.name || "User"}</span>! 👋
             </h1>
             <p className="text-gray-400 mt-2">
-              Ready to balance your body and mind today? You have 3 activities scheduled.
+              Ready to balance your body and mind today? You have {pendingActivitiesToday} activities scheduled.
             </p>
           </div>
           <div className="flex items-center space-x-3">
-            <Button className="bg-gradient-to-r from-[#3EB489] to-[#2ea374] hover:from-[#2ea374] hover:to-[#3EB489] text-white">
-              <Zap className="w-4 h-4 mr-2" />
-              Generate Today's Plan
+            <Button asChild className="bg-gradient-to-r from-[#3EB489] to-[#2ea374] hover:from-[#2ea374] hover:to-[#3EB489] text-white">
+              <Link to="/dashboard/smart-assistant">
+                <Zap className="w-4 h-4 mr-2" />
+                Generate Today's Plan
+              </Link>
             </Button>
           </div>
         </div>
@@ -74,7 +177,7 @@ export function DashboardContent() {
       {/* Stats Cards */}
       <motion.div variants={fadeInUp}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat, index) => (
+          {dynamicStats.map((stat, index) => (
             <Card key={index} className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 hover:border-[#3EB489]/30 transition-all duration-300">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -108,63 +211,73 @@ export function DashboardContent() {
                     Your AI-optimized daily plan
                   </CardDescription>
                 </div>
-                <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
-                  <MoreHorizontal className="w-4 h-4" />
+                <Button asChild variant="ghost" size="sm" className="text-gray-400 hover:text-white">
+                  <Link to="/dashboard/schedule">
+                    <MoreHorizontal className="w-4 h-4" />
+                  </Link>
                 </Button>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {todaySchedule.map((item, index) => (
-                <div
-                  key={index}
-                  className="flex items-center space-x-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-200"
-                >
-                  <div className="flex-shrink-0">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      item.status === 'completed' ? 'bg-green-500/20 text-green-400' :
-                      item.status === 'in-progress' ? 'bg-[#3EB489]/20 text-[#3EB489]' :
-                      'bg-gray-500/20 text-gray-400'
-                    }`}>
-                      {item.status === 'completed' ? (
-                        <CheckCircle2 className="w-5 h-5" />
-                      ) : item.status === 'in-progress' ? (
-                        <Clock className="w-5 h-5" />
-                      ) : (
-                        <Clock className="w-5 h-5" />
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <h4 className={`font-medium ${
-                        item.status === 'completed' ? 'text-gray-400 line-through' : 'text-white'
+              {todaySchedule.length > 0 ? (
+                todaySchedule.map((item) => (
+                  <div
+                    key={item.id} // Use item.id for unique key
+                    className="flex items-center space-x-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-200"
+                  >
+                    <div className="flex-shrink-0">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        item.status === 'completed' ? 'bg-green-500/20 text-green-400' :
+                        item.status === 'in-progress' ? 'bg-[#3EB489]/20 text-[#3EB489]' :
+                        'bg-gray-500/20 text-gray-400'
                       }`}>
-                        {item.activity}
-                      </h4>
-                      <span className="text-sm text-gray-400">{item.time}</span>
-                    </div>
-                    <div className="flex items-center space-x-2 mt-1">
-                      <Badge variant="secondary" className={`text-xs ${
-                        item.type === 'fitness' ? 'bg-[#3EB489]/20 text-[#3EB489]' : 'bg-blue-500/20 text-blue-400'
-                      }`}>
-                        {item.type === 'fitness' ? (
-                          <><Dumbbell className="w-3 h-3 mr-1" />Fitness</>
+                        {item.status === 'completed' ? (
+                          <CheckCircle2 className="w-5 h-5" />
+                        ) : item.status === 'in-progress' ? (
+                          <Clock className="w-5 h-5" />
                         ) : (
-                          <><BookOpen className="w-3 h-3 mr-1" />Study</>
+                          <Clock className="w-5 h-5" />
                         )}
-                      </Badge>
-                      <Badge variant="outline" className={`text-xs border-white/20 ${
-                        item.status === 'completed' ? 'text-green-400' :
-                        item.status === 'in-progress' ? 'text-[#3EB489]' :
-                        'text-gray-400'
-                      }`}>
-                        {item.status === 'completed' ? 'Completed' :
-                          item.status === 'in-progress' ? 'In Progress' : 'Pending'}
-                      </Badge>
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <h4 className={`font-medium ${
+                          item.status === 'completed' ? 'text-gray-400 line-through' : 'text-white'
+                        }`}>
+                          {item.activity}
+                        </h4>
+                        <span className="text-sm text-gray-400">{item.time}</span>
+                      </div>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <Badge variant="secondary" className={`text-xs rounded-md ${
+                          item.type === 'fitness' ? 'bg-[#3EB489]/20 text-[#3EB489]' :
+                          item.type === 'study' ? 'bg-blue-500/20 text-blue-400' :
+                          'bg-gray-500/20 text-gray-400'
+                        }`}>
+                          {item.type === 'fitness' ? (
+                            <><Dumbbell className="w-3 h-3 mr-1" />Fitness</>
+                          ) : item.type === 'study' ? (
+                            <><BookOpen className="w-3 h-3 mr-1" />Study</>
+                          ) : (
+                            item.type.charAt(0).toUpperCase() + item.type.slice(1) // Capitalize first letter
+                          )}
+                        </Badge>
+                        <Badge variant="outline" className={`text-xs border-white/20 rounded-md ${
+                          item.status === 'completed' ? 'text-green-400' :
+                          item.status === 'in-progress' ? 'text-[#3EB489]' :
+                          'text-gray-400'
+                        }`}>
+                          {item.status === 'completed' ? 'Completed' :
+                            item.status === 'in-progress' ? 'In Progress' : 'Pending'}
+                        </Badge>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-gray-400 text-center py-4">No activities scheduled for today. Time to relax!</p>
+              )}
             </CardContent>
           </Card>
         </motion.div>
@@ -180,34 +293,46 @@ export function DashboardContent() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-300">Study Goals</span>
-                  <span className="text-sm font-medium text-white">75%</span>
+                  <span className="text-sm font-medium text-white">
+                    {dashboardSummary?.goals?.total > 0
+                      ? `${Math.round((dashboardSummary.goals.completed / dashboardSummary.goals.total) * 100)}%`
+                      : "0%"}
+                  </span>
                 </div>
-                <Progress value={75} className="h-2 bg-white/10">
-                  <div className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full" style={{width: '75%'}} />
+                <Progress value={dashboardSummary?.goals?.total > 0 ? (dashboardSummary.goals.completed / dashboardSummary.goals.total) * 100 : 0} className="h-2 bg-white/10">
+                  <div className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full" style={{width: `${dashboardSummary?.goals?.total > 0 ? (dashboardSummary.goals.completed / dashboardSummary.goals.total) * 100 : 0}%`}} />
                 </Progress>
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-300">Fitness Goals</span>
-                  <span className="text-sm font-medium text-white">92%</span>
+                  <span className="text-sm font-medium text-white">
+                    {dashboardSummary?.goals?.total > 0
+                      ? `${Math.round((dashboardSummary.goals.completed / dashboardSummary.goals.total) * 100)}%` // Assuming overall completion for now
+                      : "0%"}
+                  </span>
                 </div>
-                <Progress value={92} className="h-2 bg-white/10">
-                  <div className="h-full bg-gradient-to-r from-[#3EB489] to-[#2ea374] rounded-full" style={{width: '92%'}} />
+                <Progress value={dashboardSummary?.goals?.total > 0 ? (dashboardSummary.goals.completed / dashboardSummary.goals.total) * 100 : 0} className="h-2 bg-white/10">
+                  <div className="h-full bg-gradient-to-r from-[#3EB489] to-[#2ea374] rounded-full" style={{width: `${dashboardSummary?.goals?.total > 0 ? (dashboardSummary.goals.completed / dashboardSummary.goals.total) * 100 : 0}%`}} />
                 </Progress>
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-300">Overall Balance</span>
-                  <span className="text-sm font-medium text-white">84%</span>
+                  <span className="text-sm font-medium text-white">
+                    {dashboardSummary?.goals?.total > 0
+                      ? `${Math.round((dashboardSummary.goals.completed / dashboardSummary.goals.total) * 100)}%`
+                      : "0%"}
+                  </span>
                 </div>
-                <Progress value={84} className="h-2 bg-white/10">
-                  <div className="h-full bg-gradient-to-r from-purple-500 to-purple-400 rounded-full" style={{width: '84%'}} />
+                <Progress value={dashboardSummary?.goals?.total > 0 ? (dashboardSummary.goals.completed / dashboardSummary.goals.total) * 100 : 0} className="h-2 bg-white/10">
+                  <div className="h-full bg-gradient-to-r from-purple-500 to-purple-400 rounded-full" style={{width: `${dashboardSummary?.goals?.total > 0 ? (dashboardSummary.goals.completed / dashboardSummary.goals.total) * 100 : 0}%`}} />
                 </Progress>
               </div>
             </CardContent>
           </Card>
 
-          {/* Recent Achievements */}
+          {/* Recent Achievements (still mock data) */}
           <Card className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20">
             <CardHeader>
               <CardTitle className="text-white text-lg">Recent Achievements</CardTitle>
@@ -225,6 +350,9 @@ export function DashboardContent() {
                   </div>
                 </div>
               ))}
+              {recentAchievements.length === 0 && (
+                <p className="text-gray-400 text-center py-4">No recent achievements yet. Keep pushing!</p>
+              )}
             </CardContent>
           </Card>
         </motion.div>
@@ -232,4 +360,3 @@ export function DashboardContent() {
     </motion.div>
   );
 }
-

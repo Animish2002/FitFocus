@@ -38,9 +38,12 @@ export function Navbar({ sidebarOpen, setSidebarOpen, darkMode, setDarkMode }) {
     window.location.href = "/auth";
   };
 
+  const userDataString = localStorage.getItem("user");
+  const userData = userDataString ? JSON.parse(userDataString) : null;
+
   return (
     <header className="bg-slate-900/95 backdrop-blur-md border-b border-white/10 sticky top-0 z-40">
-      <div className="flex items-center justify-between h-16 px-6">
+      <div className="flex items-center justify-between h-19 px-6">
         {/* Mobile menu trigger */}
         <div className="flex items-center space-x-4">
           <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
@@ -61,8 +64,7 @@ export function Navbar({ sidebarOpen, setSidebarOpen, darkMode, setDarkMode }) {
               <Sidebar onNavLinkClick={handleNavLinkClick} />
             </SheetContent>
           </Sheet>
-
-                  </div>
+        </div>
 
         {/* Right side - Quick Actions, Notifications, Theme Toggle, User Menu */}
         <div className="flex items-center space-x-4">
@@ -106,8 +108,12 @@ export function Navbar({ sidebarOpen, setSidebarOpen, darkMode, setDarkMode }) {
             >
               <DropdownMenuLabel className="text-white">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium">Animish Chopade</p>
-                  <p className="text-xs text-gray-400">animish@example.com</p>
+                  <p className="text-sm font-medium">
+                    {userData?.name || "User"}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    {userData?.email || "No email"}
+                  </p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-white/20" />
