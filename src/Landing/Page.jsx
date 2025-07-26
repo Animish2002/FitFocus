@@ -174,7 +174,10 @@ export default function LandingPage() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Button onClick={() => navigate("/auth")} className="cursor-pointer bg-gradient-to-r from-[#3EB489] to-[#2ea374] hover:from-[#2ea374] hover:to-[#3EB489] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                <Button
+                  onClick={() => navigate("/auth")}
+                  className="cursor-pointer bg-gradient-to-r from-[#3EB489] to-[#2ea374] hover:from-[#2ea374] hover:to-[#3EB489] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300"
+                >
                   Get Started
                 </Button>
               </motion.div>
@@ -184,7 +187,7 @@ export default function LandingPage() {
       </motion.header>
 
       {/* Hero Section */}
-      <section className="relative z-10 container mx-auto px-6 py-24 max-w-7xl">
+      <section className="relative z-10 container mx-auto px-6 py-24 max-w-7xl ">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <motion.div
             className="space-y-8"
@@ -206,14 +209,14 @@ export default function LandingPage() {
 
             <div className="space-y-6">
               <motion.h1
-                className="text-5xl lg:text-7xl font-medium leading-tight"
+                className="text-5xl lg:text-6xl font-medium leading-tight"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.3 }}
               >
                 Perfect&nbsp;
                 <motion.span
-                  className="bg-gradient-to-r from-[#3EB489] to-[#2ea374] bg-clip-text text-transparent bitcount-grid-single-hero"
+                  className="bg-gradient-to-r from-[#3EB489] to-[#2ea374] bg-clip-text text-transparent bitcount-grid-single-hero lg:text-7xl"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.8, delay: 0.7 }}
@@ -343,7 +346,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section className="relative z-10 container mx-auto px-6 py-24 max-w-7xl">
+      <section className="relative z-10 container mx-auto px-6 py-24 max-w-7xl mt-6">
         <motion.div
           className="text-center mb-20"
           initial={{ opacity: 0, y: 30 }}

@@ -2,7 +2,7 @@
 import { ThemeProvider } from "@/components/theme-provider";
 import Page from "@/Landing/Page";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import AuthPages from "./auth/AuthPages";
+import AuthPages from "./auth/AuthLayout";
 // Import the new DashboardLayout
 import { DashboardLayout } from "@/Layout/DashboardLayout";
 

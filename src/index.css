@@ -142,3 +142,23 @@
   font-style: normal;
   font-variation-settings: "slnt" 0, "CRSV" 0.5, "ELSH" 0, "ELXP" 0;
 }
+
+.background {
+  background: hsla(158, 49%, 47%, 1);
+
+  background: linear-gradient(0deg, hsla(158, 49%, 47%, 1) 0%, #18181b 37%);
+
+  /* background: -moz-linear-gradient(
+    0deg,
+    hsla(158, 49%, 47%, 1) 0%,
+    hsla(0, 0%, 6%, 1) 37%
+  ); */
+
+  /* background: -webkit-linear-gradient(
+    0deg,
+    hsla(158, 49%, 47%, 1) 0%,
+    hsla(0, 0%, 6%, 1) 37%
+  ); */
+
+  filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#3eb489", endColorstr="#0f0f0f", GradientType=1 );
+}
