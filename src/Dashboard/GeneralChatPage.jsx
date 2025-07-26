@@ -171,7 +171,7 @@ export function GeneralChatPage() {
     setListLoading(true); // Show loading for list
     setListError(null);
     try {
-      await axiosInstance.delete(`/ai/conversations/${idToDelete}`);
+      await axiosInstance.delete(`/ai/delete-conversations/${idToDelete}`);
       // If the currently viewed conversation is deleted, clear it
       if (conversationId === idToDelete) {
         handleNewChat();

@@ -17,8 +17,6 @@ import {
   Bell,
   Plus,
   Menu,
-  Sun,
-  Moon,
   User,
   Settings,
   HelpCircle,
@@ -93,20 +91,6 @@ export function Navbar({ sidebarOpen, setSidebarOpen, darkMode, setDarkMode }) {
           >
             <Bell className="w-5 h-5" />
             <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>
-          </Button>
-
-          {/* Theme Toggle Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-gray-300 hover:text-white rounded-md"
-            onClick={() => setDarkMode(!darkMode)}
-          >
-            {darkMode ? (
-              <Sun className="w-5 h-5" />
-            ) : (
-              <Moon className="w-5 h-5" />
-            )}
           </Button>
 
           {/* User Menu Dropdown */}
