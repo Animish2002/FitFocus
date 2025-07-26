@@ -32,7 +32,7 @@ export default function Dashboard() {
 
           {/* Page Content */}
           <main className="flex-1 overflow-y-auto">
-            <div className="p-8">
+            <div className="md:p-8 p-3">
               <DashboardContent />
             </div>
           </main>

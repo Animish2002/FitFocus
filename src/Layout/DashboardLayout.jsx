@@ -41,7 +41,7 @@ export function DashboardLayout() {
 
           {/* Page Content Area - scrollable for individual page content */}
           <main className="flex-1 overflow-y-auto">
-            <div className="p-8">
+            <div className="md:p-8 p-3">
               {/* Outlet will render the matched nested route component here */}
               <Outlet />
             </div>
