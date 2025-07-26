@@ -12,14 +12,32 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Search, Bell, Plus, Menu, Sun, Moon, User, Settings, HelpCircle, LogOut } from "lucide-react";
+import {
+  Search,
+  Bell,
+  Plus,
+  Menu,
+  Sun,
+  Moon,
+  User,
+  Settings,
+  HelpCircle,
+  LogOut,
+} from "lucide-react";
 import { Sidebar } from "./Sidebar"; // Assuming Sidebar is in the same layout folder
 import { Link } from "react-router-dom"; // Import Link
+import { useAuth } from "@/context/AuthContext";
 
 export function Navbar({ sidebarOpen, setSidebarOpen, darkMode, setDarkMode }) {
   // onNavLinkClick is passed to Sidebar for mobile view to close the sheet after navigation
   const handleNavLinkClick = () => {
     setSidebarOpen(false); // Close sidebar on navigation
+  };
+
+  const { logout: authLogout, user } = useAuth();
+  const handleLogout = () => {
+    authLogout();
+    window.location.href = "/auth";
   };
 
   return (
@@ -29,11 +47,18 @@ export function Navbar({ sidebarOpen, setSidebarOpen, darkMode, setDarkMode }) {
         <div className="flex items-center space-x-4">
           <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="sm" className="lg:hidden text-gray-300 hover:text-white rounded-md">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="lg:hidden text-gray-300 hover:text-white rounded-md"
+              >
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-80 bg-slate-900 border-white/10">
+            <SheetContent
+              side="left"
+              className="p-0 w-80 bg-slate-900 border-white/10"
+            >
               {/* Sidebar in mobile view, passing the click handler */}
               <Sidebar onNavLinkClick={handleNavLinkClick} />
             </SheetContent>
@@ -52,12 +77,20 @@ export function Navbar({ sidebarOpen, setSidebarOpen, darkMode, setDarkMode }) {
         {/* Right side - Quick Actions, Notifications, Theme Toggle, User Menu */}
         <div className="flex items-center space-x-4">
           {/* Quick Actions Button */}
-          <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white rounded-md">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-gray-300 hover:text-white rounded-md"
+          >
             <Plus className="w-5 h-5" />
           </Button>
 
           {/* Notifications Button */}
-          <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white relative rounded-md">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-gray-300 hover:text-white relative rounded-md"
+          >
             <Bell className="w-5 h-5" />
             <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>
           </Button>
@@ -69,7 +102,11 @@ export function Navbar({ sidebarOpen, setSidebarOpen, darkMode, setDarkMode }) {
             className="text-gray-300 hover:text-white rounded-md"
             onClick={() => setDarkMode(!darkMode)}
           >
-            {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            {darkMode ? (
+              <Sun className="w-5 h-5" />
+            ) : (
+              <Moon className="w-5 h-5" />
+            )}
           </Button>
 
           {/* User Menu Dropdown */}
@@ -77,12 +114,20 @@ export function Navbar({ sidebarOpen, setSidebarOpen, darkMode, setDarkMode }) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-10 w-10 rounded-full p-0">
                 <Avatar className="h-10 w-10 border-2 border-[#3EB489]/30">
-                  <AvatarImage src="https://placehold.co/40x40/3EB489/ffffff?text=AC" alt="User" />
-                  <AvatarFallback className="bg-[#3EB489] text-white">AC</AvatarFallback>
+                  <AvatarImage
+                    src="https://placehold.co/40x40/3EB489/ffffff?text=AC"
+                    alt="User"
+                  />
+                  <AvatarFallback className="bg-[#3EB489] text-white">
+                    AC
+                  </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 bg-slate-800 border-white/20 rounded-lg">
+            <DropdownMenuContent
+              align="end"
+              className="w-56 bg-slate-800 border-white/20 rounded-lg"
+            >
               <DropdownMenuLabel className="text-white">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium">Animish Chopade</p>
@@ -90,26 +135,21 @@ export function Navbar({ sidebarOpen, setSidebarOpen, darkMode, setDarkMode }) {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-white/20" />
-              <DropdownMenuItem className="text-gray-300 hover:text-white hover:bg-white/10 rounded-md" asChild>
-                <Link to="/dashboard/profile"> {/* Example link */}
+              <DropdownMenuItem
+                className="text-gray-300 hover:text-white hover:bg-white/10 rounded-md"
+                asChild
+              >
+                <Link to="/dashboard/profile">
                   <User className="mr-2 h-4 w-4" />
                   Profile
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className="text-gray-300 hover:text-white hover:bg-white/10 rounded-md" asChild>
-                <Link to="/dashboard/settings"> {/* Example link */}
-                  <Settings className="mr-2 h-4 w-4" />
-                  Settings
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-gray-300 hover:text-white hover:bg-white/10 rounded-md" asChild>
-                <Link to="/dashboard/help"> {/* Example link */}
-                  <HelpCircle className="mr-2 h-4 w-4" />
-                  Help & Support
-                </Link>
-              </DropdownMenuItem>
+
               <DropdownMenuSeparator className="bg-white/20" />
-              <DropdownMenuItem className="text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-md">
+              <DropdownMenuItem
+                className="text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-md"
+                onClick={handleLogout}
+              >
                 <LogOut className="mr-2 h-4 w-4" />
                 Log out
               </DropdownMenuItem>

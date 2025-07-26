@@ -1,30 +1,32 @@
-// src/components/auth/AuthLayout.jsx
-"use client";
-
 import React, { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Brain } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import BackgroundSVG from "./BackgroundSVG";
 import FeaturesSidebar from "./FeaturesSidebar";
 import LoginForm from "./LoginForm";
 import SignupForm from "./SignupForm";
 import MobileAuthNavigator from "./MobileAuthNavigator";
+import { useAuth } from "@/context/AuthContext";
 
 export default function AuthLayout() {
-  const [currentPage, setCurrentPage] = useState("login"); // 'login' or 'signup'
+  const [currentPage, setCurrentPage] = useState("login");
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPage] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     confirmPassword: "",
-    name: "", // Changed from firstName/lastName for simplicity with a single 'name' field
+    name: "",
     acceptTerms: false,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+
+  const navigate = useNavigate();
+  const { login: authLogin } = useAuth(); // Destructure login from useAuth
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -38,7 +40,7 @@ export default function AuthLayout() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/login`,
+        `${import.meta.env.VITE_BACKEND_URL}/auth/login`,
         {
           method: "POST",
           headers: {
@@ -54,15 +56,28 @@ export default function AuthLayout() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Login failed");
+        throw new Error(
+          data.message || "Login failed. Please check your credentials."
+        );
       }
 
       console.log("Login successful:", data);
       setSuccess("Login successful!");
-      // Handle successful login (e.g., store token, redirect)
+
+      const token = data.token; // Extract the token
+      const user = data.user; // Extract user data
+
+      if (token && user) {
+        authLogin(user, token); // Pass BOTH user data AND token to authLogin
+        navigate("/dashboard"); // Redirect to dashboard
+      } else {
+        throw new Error(
+          "Login successful, but user data or token missing from response."
+        );
+      }
     } catch (err) {
       console.error("Login error:", err);
-      setError(err.message);
+      setError(err.message || "An unexpected error occurred during login.");
     } finally {
       setLoading(false);
     }
@@ -87,7 +102,7 @@ export default function AuthLayout() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/register`,
+        `${import.meta.env.VITE_BACKEND_URL}/auth/register`,
         {
           method: "POST",
           headers: {
@@ -96,7 +111,7 @@ export default function AuthLayout() {
           body: JSON.stringify({
             email: formData.email,
             password: formData.password,
-            name: formData.name, // Using 'name' field
+            name: formData.name,
           }),
         }
       );
@@ -104,14 +119,13 @@ export default function AuthLayout() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Registration failed");
+        throw new Error(data.message || "Registration failed.");
       }
 
       console.log("Registration successful:", data);
       setSuccess("Registration successful! Please log in.");
-      setCurrentPage("login"); // Optionally switch to login after successful registration
+      setCurrentPage("login");
       setFormData({
-        // Clear form after successful registration
         email: "",
         password: "",
         confirmPassword: "",
@@ -120,7 +134,9 @@ export default function AuthLayout() {
       });
     } catch (err) {
       console.error("Registration error:", err);
-      setError(err.message);
+      setError(
+        err.message || "An unexpected error occurred during registration."
+      );
     } finally {
       setLoading(false);
     }
@@ -136,7 +152,7 @@ export default function AuthLayout() {
     setError,
     setShowPassword,
     showPassword,
-    setShowConfirmPage,
+    setShowConfirmPassword,
     showConfirmPassword,
     setCurrentPage,
   };
