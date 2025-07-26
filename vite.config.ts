@@ -1,24 +1,24 @@
 // vite.config.js
 import { defineConfig } from 'vite'
-import { VitePWA } from 'vite-plugin-pwa'
+import { VitePWA } from 'vite-plugin-pwa' // Make sure to import VitePWA
+import tailwindcss from "@tailwindcss/vite" // Your TailwindCSS plugin
+import path from "path" // Import 'path' module for alias resolution
 
+// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    VitePWA({
+    tailwindcss(), // TailwindCSS plugin
+    VitePWA({ // VitePWA plugin configuration
       registerType: 'autoUpdate',
-      // Ensure these assets exist in your 'public' folder or equivalent
-      includeAssets: ['favicon.ico'],
+      includeAssets: ['favicon.svg', 'favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
       manifest: {
-        name: 'FitFocus - Your Fitness Companion', // More descriptive name
-        short_name: 'FitFocus', // Concise name for home screen
-        description: 'Track your workouts, set goals for CAT Exam, and stay motivated with FitFocus.', // Clearer description
-        // A common theme color for fitness apps is often a dark tone, or a vibrant accent.
-        // Let's use a dark grey/black for a sleek look, and you can adjust to your brand's primary color.
-        theme_color: '#1a1a1a', // Dark theme color (adjust to your app's main color)
-        background_color: '#ffffff', // A common background for the splash screen
-        display: 'standalone', // Makes the PWA feel more like a native app
+        name: 'FitFocus - Your Fitness Companion',
+        short_name: 'FitFocus',
+        description: 'Track your workouts, set goals, and stay motivated with FitFocus.',
+        theme_color: '#1a1a1a', // Example dark theme color
+        background_color: '#ffffff', // Example splash screen background color
+        display: 'standalone',
         icons: [
-          // Standard sizes for various devices and contexts
           {
             src: 'https://res.cloudinary.com/dkv3bx51z/image/upload/v1753548580/FitFocus_o75x8a.png',
             sizes: '192x192',
@@ -30,33 +30,21 @@ export default defineConfig({
             type: 'image/png'
           },
           {
-            // This is crucial for "maskable icons" on Android to adapt to various shapes
-            src: 'https://res.cloudinary.com/dkv3bx51z/image/upload/v1753548580/FitFocus_o75x8a.png', // Often the same 512x512 icon is used for maskable
+            src: 'https://res.cloudinary.com/dkv3bx51z/image/upload/v1753548580/FitFocus_o75x8a.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable'
-          },
-          // You might want to include more icon sizes for broader compatibility and better appearance
-          // on different platforms (e.g., Apple touch icons, smaller icons for notifications).
-          // Examples (you'd need to generate these images):
-          // {
-          //   src: 'pwa-144x144.png',
-          //   sizes: '144x144',
-          //   type: 'image/png'
-          // },
-          // {
-          //   src: 'pwa-72x72.png',
-          //   sizes: '72x72',
-          //   type: 'image/png'
-          // },
-          // {
-          //   src: 'apple-touch-icon.png', // Typically 180x180
-          //   sizes: '180x180',
-          //   type: 'image/png',
-          //   purpose: 'apple touch icon'
-          // }
+          }
         ]
+      },
+      workbox: { // Added workbox configuration for better asset matching
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2,json,webmanifest}'],
       }
     })
-  ]
+  ],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
 })
