@@ -15,6 +15,7 @@ import { FitnessTrackerPage } from "@/Dashboard/FitnessTrackerPage";
 import { StudyProgressPage } from "@/Dashboard/StudyProgressPage";
 import { GoalsTargetsPage } from "@/Dashboard/GoalsTargetsPage";
 import NotFoundPage from "./Dashboard/NotFoundPage";
+import ProfilePage from "./Dashboard/Profile";
 
 function App() {
   return (
@@ -38,7 +39,7 @@ function App() {
                 {/* Add routes for settings, help, profile etc. if you create pages for them */}
                 {/* <Route path="settings" element={<SettingsPage />} /> */}
                 {/* <Route path="help" element={<HelpPage />} /> */}
-                {/* <Route path="profile" element={<ProfilePage />} /> */}
+                <Route path="profile" element={<ProfilePage />} />
                 {/* <Route path="analytics" element={<AnalyticsPage />} /> */}
               </Route>
             </Route>

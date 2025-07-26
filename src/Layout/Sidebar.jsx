@@ -31,7 +31,7 @@ const navigationItems = [
 
 // Bottom navigation items configuration with their respective paths
 const bottomNavItems = [
-  { id: "settings", label: "Settings", icon: Settings, path: "/dashboard/settings" }, // Added path
+  { id: "settings", label: "Settings", icon: Settings, path: "/dashboard/profile" }, // Added path
 
 ];
 
