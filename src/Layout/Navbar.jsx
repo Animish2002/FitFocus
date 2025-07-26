@@ -62,15 +62,7 @@ export function Navbar({ sidebarOpen, setSidebarOpen, darkMode, setDarkMode }) {
             </SheetContent>
           </Sheet>
 
-          {/* Search Input */}
-          <div className="relative hidden md:block">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input
-              placeholder="Search..."
-              className="pl-10 pr-4 w-80 bg-white/5 border-white/20 focus:border-[#3EB489] text-white placeholder-gray-400 rounded-md"
-            />
-          </div>
-        </div>
+                  </div>
 
         {/* Right side - Quick Actions, Notifications, Theme Toggle, User Menu */}
         <div className="flex items-center space-x-4">

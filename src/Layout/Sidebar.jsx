@@ -104,7 +104,7 @@ export function Sidebar({ className = "", onNavLinkClick }) {
     >
       <div className="flex flex-col h-full">
         {/* Logo Section */}
-        <div className="p-6 border-b border-white/10">
+        <div className="p-4 border-b border-white/10">
           <Link to="/dashboard" className="flex items-center space-x-3">
             {" "}
             {/* Link to dashboard home */}
@@ -112,7 +112,6 @@ export function Sidebar({ className = "", onNavLinkClick }) {
               <div className="w-10 h-10 bg-gradient-to-br from-[#3EB489] to-[#2ea374] rounded-xl flex items-center justify-center shadow-lg">
                 <Brain className="w-6 h-6 text-white" />
               </div>
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#3EB489] rounded-full animate-pulse"></div>
             </div>
             <div>
               <h1 className="text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
@@ -198,7 +197,7 @@ export function Sidebar({ className = "", onNavLinkClick }) {
                     className="bg-[#3EB489] hover:bg-[#2ea374] text-white h-8 rounded-md"
                     asChild
                   >
-                    <Link to="/dashboard/ask-ai" onClick={onNavLinkClick}>
+                    <Link to="/dashboard/general-assistant" onClick={onNavLinkClick}>
                       {" "}
                       {/* Use Link for navigation */}
                       Ask AI
