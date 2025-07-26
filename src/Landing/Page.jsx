@@ -540,7 +540,7 @@ export default function LandingPage() {
           <h2 className="text-4xl lg:text-5xl font-medium mb-8 ">
             Meet the&nbsp;
             <span className="bg-gradient-to-r from-[#3EB489] to-[#2ea374] bg-clip-text text-transparent bitcount-grid-single-hero">
-              Creator
+              Developer
             </span>
           </h2>
 
@@ -575,7 +575,7 @@ export default function LandingPage() {
               viewport={{ once: true }}
             >
               <motion.a
-                href="#"
+                href="https://www.linkedin.com/in/animish-chopade/"
                 variants={subtleHover}
                 whileHover="hover"
                 whileTap={{ scale: 0.95 }}
@@ -586,7 +586,7 @@ export default function LandingPage() {
               </motion.a>
 
               <motion.a
-                href="#"
+                href="https://github.com/Animish2002"
                 variants={subtleHover}
                 whileHover="hover"
                 whileTap={{ scale: 0.95 }}
