@@ -178,7 +178,7 @@ export default function LandingPage() {
                   onClick={() => navigate("/auth")}
                   className="cursor-pointer bg-gradient-to-r from-[#3EB489] to-[#2ea374] hover:from-[#2ea374] hover:to-[#3EB489] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300"
                 >
-                  Get Started
+                  Login
                 </Button>
               </motion.div>
             </div>
@@ -187,8 +187,8 @@ export default function LandingPage() {
       </motion.header>
 
       {/* Hero Section */}
-      <section className="relative z-10 container mx-auto px-6 py-24 max-w-7xl ">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+      <section className="relative z-10 container mx-auto px-6 md:py-24 py-14 max-w-7xl md:w-full">
+        <div className="grid lg:grid-cols-2 md:gap-16 gap-6 items-center">
           <motion.div
             className="space-y-8"
             variants={slideInLeft}
@@ -209,7 +209,7 @@ export default function LandingPage() {
 
             <div className="space-y-6">
               <motion.h1
-                className="text-5xl lg:text-6xl font-medium leading-tight"
+                className="text-4xl lg:text-6xl font-medium leading-tight"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.3 }}
@@ -222,12 +222,12 @@ export default function LandingPage() {
                   transition={{ duration: 0.8, delay: 0.7 }}
                 >
                   Balance
-                </motion.span>{" "}
-                for Body & Mind
+                </motion.span>
+                &nbsp; for Body & Mind
               </motion.h1>
 
               <motion.p
-                className="text-xl text-gray-300 leading-relaxed max-w-lg"
+                className="md:text-xl text-sm text-gray-300 leading-relaxed max-w-lg"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.5 }}
@@ -249,10 +249,11 @@ export default function LandingPage() {
                 whileTap={{ scale: 0.98 }}
               >
                 <Button
+                  onClick={() => navigate("/auth")}
                   size="lg"
-                  className="bg-gradient-to-r from-[#3EB489] to-[#2ea374] hover:from-[#2ea374] hover:to-[#3EB489] text-white px-8 py-6 text-lg rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300"
+                  className="bg-gradient-to-r from-[#3EB489] to-[#2ea374] hover:from-[#2ea374] hover:to-[#3EB489] text-white md:px-8 md:py-6 py-1 px-3 text-lg rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300"
                 >
-                  Start Free Trial
+                  Get Started
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </motion.div>
@@ -355,7 +356,7 @@ export default function LandingPage() {
           transition={{ duration: 0.8 }}
         >
           <motion.div
-            className="inline-flex items-center space-x-2 bg-[#3EB489]/10 border border-[#3EB489]/20 rounded-full px-4 py-2 text-sm mb-6"
+            className="inline-flex items-center space-x-2 bg-[#3EB489]/10 border border-[#3EB489]/20 rounded-full px-4 py-2 text-sm md:mb-6 mb-2"
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
@@ -549,9 +550,9 @@ export default function LandingPage() {
             whileHover={{ y: -5 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
-            <p className="text-[16px] text-gray-300 leading-relaxed mb-8">
+            <p className="text-sm text-gray-300 leading-relaxed mb-8">
               Hi, I'm&nbsp;&nbsp;
-              <span className="text-[#3EB489] font-bold text-3xl ">
+              <span className="text-[#3e71b4] font-bold text-xl ">
                 <a
                   href="https://www.animishchopade.in/"
                   className="bitcount-grid-single-hero"
@@ -579,7 +580,7 @@ export default function LandingPage() {
                 variants={subtleHover}
                 whileHover="hover"
                 whileTap={{ scale: 0.95 }}
-                className="flex items-center space-x-3 bg-gradient-to-r from-[#0077B5] to-[#005885] hover:from-[#005885] hover:to-[#0077B5] px-6 py-3 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="flex items-center space-x-3 bg-gradient-to-r from-[#0077B5] to-[#005885] hover:from-[#005885] hover:to-[#0077B5] md:px-6 md:py-3 px-3 py-1.5 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 <Linkedin className="w-5 h-5" />
                 <span className="font-light">Connect on LinkedIn</span>
@@ -590,7 +591,7 @@ export default function LandingPage() {
                 variants={subtleHover}
                 whileHover="hover"
                 whileTap={{ scale: 0.95 }}
-                className="flex items-center space-x-3 bg-gradient-to-r from-gray-800 to-gray-700 hover:from-gray-700 hover:to-gray-600 px-6 py-3 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="flex items-center space-x-3 bg-gradient-to-r from-gray-800 to-gray-700 hover:from-gray-700 hover:to-gray-600 md:px-6 md:py-3 px-3 py-1.5 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 <Github className="w-5 h-5" />
                 <span className="font-light">View on GitHub</span>
@@ -641,15 +642,15 @@ export default function LandingPage() {
             >
               <Button
                 size="lg"
-                className="bg-gradient-to-r from-[#3EB489] to-[#2ea374] hover:from-[#2ea374] hover:to-[#3EB489] text-white px-12 py-6 text-lg rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300"
+                className="bg-gradient-to-r from-[#3EB489] to-[#2ea374] hover:from-[#2ea374] hover:to-[#3EB489] text-white md:px-6 md:py-3 px-3 py-1.5 text-lg rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300"
               >
-                Start Your Free Trial
+                Start Your Fitness Goals
                 <ArrowRight className="ml-3 w-6 h-6" />
               </Button>
             </motion.div>
 
             <motion.a
-              href="mailto:animish@example.com"
+              href="mailto:animishchopade123@gmail.com"
               className="flex items-center space-x-3 text-gray-300 hover:text-[#3EB489] transition-colors text-lg"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -676,7 +677,7 @@ export default function LandingPage() {
               href="https://www.animishchopade.in/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#3EB489]"
+              className="text-[#3EB489] bitcount-grid-single-hero"
             >
               Animish Chopade
             </a>
