@@ -18,7 +18,7 @@ import {
   Plus,
   Menu,
   User,
-  Settings,
+  Settings, // Import Settings icon
   HelpCircle,
   LogOut,
 } from "lucide-react";
@@ -27,7 +27,6 @@ import { Link } from "react-router-dom"; // Import Link
 import { useAuth } from "@/context/AuthContext";
 
 export function Navbar({ sidebarOpen, setSidebarOpen, darkMode, setDarkMode }) {
-  // onNavLinkClick is passed to Sidebar for mobile view to close the sheet after navigation
   const handleNavLinkClick = () => {
     setSidebarOpen(false); // Close sidebar on navigation
   };
@@ -77,7 +76,8 @@ export function Navbar({ sidebarOpen, setSidebarOpen, darkMode, setDarkMode }) {
             <Plus className="w-5 h-5" />
           </Button>
 
-          {/* Notifications Button */}
+          {/* Notifications Button (can link to notifications list or settings directly) */}
+          {/* For now, it just shows a badge. You could make this a link too if you have a notifications inbox. */}
           <Button
             variant="ghost"
             size="sm"
@@ -124,6 +124,17 @@ export function Navbar({ sidebarOpen, setSidebarOpen, darkMode, setDarkMode }) {
                 <Link to="/dashboard/profile">
                   <User className="mr-2 h-4 w-4" />
                   Profile
+                </Link>
+              </DropdownMenuItem>
+
+              {/* NEW: Notification Settings Link */}
+              <DropdownMenuItem
+                className="text-gray-300 hover:text-white hover:bg-white/10 rounded-md"
+                asChild
+              >
+                <Link to="/dashboard/settings/notifications">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Notification Settings
                 </Link>
               </DropdownMenuItem>
 

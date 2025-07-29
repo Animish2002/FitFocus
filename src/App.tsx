@@ -17,6 +17,7 @@ import { GoalsTargetsPage } from "@/Dashboard/GoalsTargetsPage";
 import NotFoundPage from "./Dashboard/NotFoundPage";
 import ProfilePage from "./Dashboard/Profile";
 import { GeneralChatPage } from "./Dashboard/GeneralChatPage";
+import { NotificationSettingsPage } from "./Dashboard/NotificationSettingsPage";
 
 function App() {
   return (
@@ -43,9 +44,11 @@ function App() {
                 <Route path="goals" element={<GoalsTargetsPage />} />
                 {/* Add routes for settings, help, profile etc. if you create pages for them */}
                 {/* <Route path="settings" element={<SettingsPage />} /> */}
-                {/* <Route path="help" element={<HelpPage />} /> */}
+                <Route
+                  path="settings/notifications"
+                  element={<NotificationSettingsPage />}
+                />
                 <Route path="profile" element={<ProfilePage />} />
-                {/* <Route path="analytics" element={<AnalyticsPage />} /> */}
               </Route>
             </Route>
             {/* Catch-all for undefined routes within the dashboard if needed, or a 404 page */}
