@@ -1,6 +1,6 @@
 // public/service-worker.js
 
-// Version 1.1 - Added a comment to force update
+// Version 1.2 - Added a comment to force update
 // This is the service worker file. It should be placed in the `public` directory
 // and registered in your main React app entry point (e.g., index.js).
 
