@@ -1,5 +1,5 @@
 // src/pages/GoalsTargetsPage.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react"; // Import useCallback
 import {
   Card,
   CardContent,
@@ -41,7 +41,7 @@ import {
   AlertCircle,
   XCircle,
   Save,
-  CheckCircle 
+  CheckCircle,
 } from "lucide-react";
 
 import { useAuth } from "@/context/AuthContext"; // Import your AuthContext hook
@@ -73,7 +73,7 @@ export function GoalsTargetsPage() {
   const [editingGoal, setEditingGoal] = useState(null); // null for add, goal object for edit
   const [goalForm, setGoalForm] = useState({
     name: "",
-    category: "", // Must be one of "Study", "Fitness", "Personal Development", "Wellness"
+    category: "", // Must be one of "Study", "Fittness", "Personal Development", "Wellness"
     targetValue: "", // Can be empty string for optional number
     unit: "",
     dueDate: "", // YYYY-MM-DD format
@@ -82,42 +82,44 @@ export function GoalsTargetsPage() {
   const [formLoading, setFormLoading] = useState(false); // For modal form submission
   const [formError, setFormError] = useState(null); // For modal form errors
   const [formSuccess, setFormSuccess] = useState(null); // For modal form success
+  const [deleteError, setDeleteError] = useState(null); // Separate error for delete
 
   // State for Delete Confirmation Dialog
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [goalToDeleteId, setGoalToDeleteId] = useState(null);
 
   // --- Fetch Goals on Component Mount and on Changes ---
-  useEffect(() => {
-    const fetchGoals = async () => {
-      if (!user?.id) {
-        setError("User not logged in or context not loaded.");
-        setLoading(false);
-        return;
+  // Wrap fetchGoals in useCallback to prevent unnecessary re-renders and ensure stable dependency
+  const fetchGoals = useCallback(async () => {
+    if (!user?.id) {
+      setError("User not logged in or context not loaded.");
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await axiosInstance.get("/goals/get-goals");
+      setGoals(response.data.goals);
+    } catch (err) {
+      console.error("Error fetching goals:", err);
+      setError(
+        err.response?.data?.message || err.message || "Failed to load goals."
+      );
+      if (
+        err.response &&
+        (err.response.status === 401 || err.response.status === 403)
+      ) {
+        logout();
       }
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await axiosInstance.get("/goals/get-goals");
-        setGoals(response.data.goals);
-      } catch (err) {
-        console.error("Error fetching goals:", err);
-        setError(
-          err.response?.data?.message || err.message || "Failed to load goals."
-        );
-        if (
-          err.response &&
-          (err.response.status === 401 || err.response.status === 403)
-        ) {
-          logout();
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchGoals();
+    } finally {
+      setLoading(false);
+    }
   }, [user?.id, logout]); // Re-fetch when user changes or logout function changes
+
+  useEffect(() => {
+    fetchGoals();
+  }, [fetchGoals]); // Depend on the memoized fetchGoals
 
   // Helper to get color for progress bar based on category
   const getProgressColor = (category) => {
@@ -228,6 +230,7 @@ export function GoalsTargetsPage() {
   // --- Delete Goal Handlers ---
   const handleDeleteGoalClick = (id) => {
     setGoalToDeleteId(id);
+    setDeleteError(null); // Clear previous delete errors
     setShowDeleteConfirm(true);
   };
 
@@ -235,10 +238,11 @@ export function GoalsTargetsPage() {
     if (!goalToDeleteId) return;
 
     setFormLoading(true); // Use formLoading for consistency in dialog buttons
-    
+    setDeleteError(null); // Clear error before new attempt
+
     try {
       await axiosInstance.delete(`/goals/delete-goals/${goalToDeleteId}`);
-      setFormSuccess("Goal deleted successfully!");
+      // setFormSuccess("Goal deleted successfully!"); // Consider if you want this toast here or just a refresh
       setShowDeleteConfirm(false);
       setGoalToDeleteId(null);
       fetchGoals(); // Re-fetch goals to update the list
@@ -518,9 +522,9 @@ export function GoalsTargetsPage() {
               undone.
             </DialogDescription>
           </DialogHeader>
-          {formError && ( // Re-using formError for delete dialog errors
+          {deleteError && ( // Use the separate deleteError state here
             <div className="bg-red-900/30 border border-red-500 text-red-300 p-3 rounded-md flex items-center mt-4">
-              <XCircle className="w-5 h-5 mr-2" /> {formError}
+              <XCircle className="w-5 h-5 mr-2" /> {deleteError}
             </div>
           )}
           <DialogFooter className="mt-6">
