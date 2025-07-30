@@ -1,0 +1,20 @@
+{
+  "name": "FitFocus App",
+  "short_name": "FitFocus",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3EB489",
+  "icons": [
+    {
+      "src": "https://res.cloudinary.com/dkv3bx51z/image/upload/v1753765682/FitFocus_da7uvi.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://res.cloudinary.com/dkv3bx51z/image/upload/v1753765682/FitFocus_da7uvi.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
