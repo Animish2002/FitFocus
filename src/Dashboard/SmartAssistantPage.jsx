@@ -6,7 +6,6 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input"; // Although Input is imported, Textarea is used. Keep for consistency if needed elsewhere.
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -27,7 +26,6 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import axiosInstance from "@/api/axiosInstance";
 
-// Import the react-speech-recognition hooks and utilities
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
@@ -57,31 +55,55 @@ export function SmartAssistantPage() {
   const [planAcceptedSuccess, setPlanAcceptedSuccess] = useState(null);
   const [planAcceptedError, setPlanAcceptedError] = useState(null);
 
-  // Destructure the necessary items from useSpeechRecognition hook
   const {
     transcript,
     listening,
-    resetTranscript,
     browserSupportsSpeechRecognition,
+    isMicrophoneAvailable,
   } = useSpeechRecognition();
 
-  // Update prompt with transcript whenever it changes (i.e., as speech is recognized)
-  useEffect(() => {
-    setPrompt(transcript);
-  }, [transcript]);
+  // New state to hold the "spoken" prompt before it's moved to the main 'prompt' state
+  const [currentSpokenText, setCurrentSpokenText] = useState("");
 
-  // Handle errors specifically from speech recognition if needed,
-  // though useSpeechRecognition handles a lot internally.
+  // Effect to update currentSpokenText in real-time while listening
+  // This is used for the "Listening..." status message, not the main input
+  useEffect(() => {
+    if (listening) {
+      setCurrentSpokenText(transcript);
+    } else if (!listening && currentSpokenText) {
+      // If listening stops and there was spoken text, finalize it
+      // This ensures the Textarea gets updated with the full transcript
+      setPrompt(currentSpokenText);
+      setCurrentSpokenText(""); // Clear interim spoken text
+    }
+  }, [transcript, listening]); // Dependent on transcript and listening state
+
+  // Handle errors specifically from speech recognition like microphone issues
   useEffect(() => {
     if (!browserSupportsSpeechRecognition) {
-      setError("Browser does not support speech recognition.");
+      setError(
+        "Browser does not support speech recognition. Please try Chrome or Edge."
+      );
+    } else if (!isMicrophoneAvailable && !listening) {
+      // Only show this error if not currently listening, to avoid flickering
+      setError(
+        "Microphone not found or access denied. Please check your system settings."
+      );
+    } else {
+      setError(null); // Clear errors if microphone is available or recognition starts
     }
-  }, [browserSupportsSpeechRecognition]);
+  }, [browserSupportsSpeechRecognition, isMicrophoneAvailable, listening]);
 
   // Function to handle sending the prompt to the AI command endpoint
-  const handleAskAI = async (currentPrompt = prompt) => {
-    if (!currentPrompt.trim()) {
-      setError("Please enter a prompt.");
+  const handleAskAI = async (commandToSend = prompt) => {
+    // If voice input was active, stop it and use the accumulated transcript
+    if (listening) {
+      SpeechRecognition.stopListening();
+      commandToSend = currentSpokenText.trim(); // Use the current spoken text as the command
+    }
+
+    if (!commandToSend.trim()) {
+      setError("Please enter a prompt or speak something.");
       return;
     }
 
@@ -91,15 +113,11 @@ export function SmartAssistantPage() {
     setError(null);
     setPlanAcceptedSuccess(null);
     setPlanAcceptedError(null);
-
-    // Stop listening if it's active when sending the prompt manually or after voice input finishes
-    if (listening) {
-      SpeechRecognition.stopListening();
-    }
+    setPrompt(commandToSend); // Ensure the textarea displays the sent command
 
     try {
       const response = await axiosInstance.post("/ai/command", {
-        command: currentPrompt,
+        command: commandToSend,
       });
 
       const data = response.data;
@@ -130,26 +148,30 @@ export function SmartAssistantPage() {
 
   // Function to start/stop voice input
   const handleVoiceInputToggle = () => {
-    if (!browserSupportsSpeechRecognition) {
-      setError("Web Speech API is not supported in this browser.");
+    if (!browserSupportsSpeechRecognition || !isMicrophoneAvailable) {
+      setError(
+        "Microphone or speech recognition not available. Please check your browser/system settings."
+      );
       return;
     }
 
     if (listening) {
       SpeechRecognition.stopListening();
-      // When stopping, if there's a transcript, send it as the prompt
-      if (transcript.trim()) {
-        handleAskAI(transcript);
-      }
+      // The useEffect will catch the 'listening' change and update 'prompt' with 'transcript'
     } else {
-      resetTranscript(); // Clear previous transcript before starting
-      setPrompt(""); // Clear prompt state as well
+      resetTranscript(); // Clear any previous transcript
+      setPrompt(""); // Clear the prompt display immediately
+      setCurrentSpokenText(""); // Clear spoken text as well
       setAiMessage("");
       setSuggestedPlan(null);
       setError(null);
       setPlanAcceptedSuccess(null);
       setPlanAcceptedError(null);
-      SpeechRecognition.startListening({ continuous: true }); // Start continuous listening
+      // Start listening with interim results enabled, but we won't show them in the main Textarea
+      SpeechRecognition.startListening({
+        continuous: true,
+        interimResults: true,
+      });
     }
   };
 
@@ -227,12 +249,13 @@ export function SmartAssistantPage() {
     }
   };
 
-  // Render null if browser doesn't support speech recognition, or show a message
-  if (!browserSupportsSpeechRecognition && !error) {
+  // Conditional rendering for browser support and microphone availability at the top level
+  if (!browserSupportsSpeechRecognition) {
     return (
       <div className="text-red-400 p-4">
         <XCircle className="w-5 h-5 inline-block mr-2" />
-        Speech Recognition is not supported by your browser. Please try Chrome or Edge.
+        Speech Recognition is not supported by your browser. Please try Chrome
+        or Edge.
       </div>
     );
   }
@@ -264,14 +287,14 @@ export function SmartAssistantPage() {
             <Textarea
               placeholder="e.g., 'I completed my morning workout today.' or 'Suggest a study plan for quantum physics.' or 'Give me a fitness plan to lose 5kg in 2 months.'"
               className="min-h-[120px] bg-white/5 border-white/20 focus:border-[#3EB489] text-white placeholder-gray-400 rounded-md"
-              value={prompt}
+              value={listening ? currentSpokenText : prompt} // Display current spoken text only while listening
               onChange={(e) => setPrompt(e.target.value)}
               disabled={listening} // Disable manual typing while listening
             />
             {listening && (
               <p className="text-sm text-blue-400 flex items-center">
-                <Volume2 className="w-4 h-4 mr-2 animate-pulse" />{" "}
-                Listening... (Speak clearly)
+                <Volume2 className="w-4 h-4 mr-2 animate-pulse" /> Listening...
+                Speak clearly.
               </p>
             )}
             {error && (
@@ -283,7 +306,7 @@ export function SmartAssistantPage() {
               <Button
                 className="flex-1 bg-gradient-to-r from-[#3EB489] to-[#2ea374] hover:from-[#2ea374] hover:to-[#3EB489] text-white rounded-md"
                 onClick={() => handleAskAI()}
-                disabled={loading || listening}
+                disabled={loading || listening || !prompt.trim()} // Disable if no prompt
               >
                 {loading ? (
                   <>
@@ -303,7 +326,11 @@ export function SmartAssistantPage() {
                   listening ? "bg-blue-600/20 text-blue-400" : ""
                 }`}
                 onClick={handleVoiceInputToggle}
-                disabled={loading || !browserSupportsSpeechRecognition}
+                disabled={
+                  loading ||
+                  !browserSupportsSpeechRecognition ||
+                  !isMicrophoneAvailable
+                }
               >
                 {listening ? (
                   <>
