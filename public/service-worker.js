@@ -1,6 +1,6 @@
 // public/service-worker.js
 
-// Version 1.6 - Added self.skipWaiting() for immediate Service Worker updates
+// Version 1.7 - Added self.skipWaiting() for immediate Service Worker updates
 // This is the service worker file. It should be placed in the `public` directory
 // and registered in your main React app entry point (e.g., main.tsx).
 
@@ -47,8 +47,8 @@ self.addEventListener("push", function (event) {
     "https://res.cloudinary.com/dkv3bx51z/image/upload/v1753765682/FitFocus_da7uvi.png";
   const badge =
     data.badge ||
-    "https://res.cloudinary.com/dkv3bx51z/image/upload/v1753765772/bell_l81cml.png";
-  const url = data.url || "/";
+    "https://res.cloudinary.com/dkv3bx51z/image/upload/v1753765682/FitFocus_da7uvi.png";
+  const url = data.url || "https://fitfocus.animishchopade.in/dashboard";
 
   const options = {
     body: body,
@@ -63,11 +63,6 @@ self.addEventListener("push", function (event) {
     actions: [{ action: "open_url", title: "Go to App" }],
   };
 
-  console.log(
-    "[Service Worker] Preparing to show notification with title:",
-    title
-  );
-  console.log("[Service Worker] Notification options being used:", options);
 
   event.waitUntil(
     self.registration
@@ -104,9 +99,8 @@ self.addEventListener("notificationclick", function (event) {
   event.notification.close();
 
   const clickedNotification = event.notification.data;
-  const urlToOpen = clickedNotification.url || "/";
+  const urlToOpen = clickedNotification.url || "https://fitfocus.animishchopade.in/dashboard";
 
-  console.log("[Service Worker] Opening URL:", urlToOpen);
 
   event.waitUntil(
     clients
