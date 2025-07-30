@@ -156,22 +156,23 @@ export function SmartAssistantPage() {
       return;
     }
 
+    // In handleVoiceInputToggle
     if (listening) {
       SpeechRecognition.stopListening();
-      // The useEffect will catch the 'listening' change and update 'prompt' with 'transcript'
     } else {
-      resetTranscript(); // Clear any previous transcript
-      setPrompt(""); // Clear the prompt display immediately
-      setCurrentSpokenText(""); // Clear spoken text as well
+      resetTranscript();
+      setPrompt("");
+      setCurrentSpokenText("");
       setAiMessage("");
       setSuggestedPlan(null);
       setError(null);
       setPlanAcceptedSuccess(null);
       setPlanAcceptedError(null);
-      // Start listening with interim results enabled, but we won't show them in the main Textarea
+
+      // Temporarily simplify to see if it works without continuous/interimResults
       SpeechRecognition.startListening({
-        continuous: true,
-        interimResults: true,
+        continuous: false, // Try false
+        interimResults: false, // Try false
       });
     }
   };
