@@ -58,6 +58,7 @@ export function SmartAssistantPage() {
   const {
     transcript,
     listening,
+    resetTranscript, // <--- ADD THIS LINE
     browserSupportsSpeechRecognition,
     isMicrophoneAvailable,
   } = useSpeechRecognition();
