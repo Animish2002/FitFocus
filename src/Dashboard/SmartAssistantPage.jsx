@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -6,7 +6,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/input"; // Although Input is imported, Textarea is used. Keep for consistency if needed elsewhere.
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -26,6 +26,11 @@ import { motion } from "framer-motion";
 
 import { useAuth } from "@/context/AuthContext";
 import axiosInstance from "@/api/axiosInstance";
+
+// Import the react-speech-recognition hooks and utilities
+import SpeechRecognition, {
+  useSpeechRecognition,
+} from "react-speech-recognition";
 
 // Framer Motion variants for animations
 const fadeInUp = {
@@ -52,76 +57,26 @@ export function SmartAssistantPage() {
   const [planAcceptedSuccess, setPlanAcceptedSuccess] = useState(null);
   const [planAcceptedError, setPlanAcceptedError] = useState(null);
 
-  // State for Voice Input
-  const [isListening, setIsListening] = useState(false);
-  const [voiceInputStatus, setVoiceInputStatus] = useState(""); // e.g., "Listening...", "Processing..."
-  const recognitionRef = useRef(null); // Ref for SpeechRecognition instance
+  // Destructure the necessary items from useSpeechRecognition hook
+  const {
+    transcript,
+    listening,
+    resetTranscript,
+    browserSupportsSpeechRecognition,
+  } = useSpeechRecognition();
 
-  // Initialize SpeechRecognition on component mount
+  // Update prompt with transcript whenever it changes (i.e., as speech is recognized)
   useEffect(() => {
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.continuous = true; // Set to true for continuous listening
-      recognitionRef.current.interimResults = true; // Get interim results to update prompt while speaking
-      recognitionRef.current.lang = "en-US"; // Set language
+    setPrompt(transcript);
+  }, [transcript]);
 
-      recognitionRef.current.onstart = () => {
-        setIsListening(true);
-        setVoiceInputStatus("Listening...");
-        setError(null); // Clear any previous errors
-      };
-
-      recognitionRef.current.onresult = (event) => {
-        let interimTranscript = "";
-        let finalTranscript = "";
-
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript;
-          } else {
-            interimTranscript += event.results[i][0].transcript;
-          }
-        }
-        // Update prompt with both final and interim results
-        setPrompt(
-          (prevPrompt) => prevPrompt + finalTranscript + interimTranscript
-        );
-        setVoiceInputStatus("Listening... (Speak clearly)");
-      };
-
-      recognitionRef.current.onerror = (event) => {
-        setIsListening(false);
-        setVoiceInputStatus("");
-        setError(`Voice input error: ${event.error}. Please try again.`);
-        console.error("Speech Recognition Error:", event.error);
-        if (event.error === "no-speech") {
-          setError("No speech detected. Please try again.");
-        } else if (event.error === "not-allowed") {
-          setError(
-            "Microphone access denied. Please allow microphone access in your browser settings."
-          );
-        }
-      };
-
-      recognitionRef.current.onend = () => {
-        setIsListening(false);
-        setVoiceInputStatus("");
-        // When recognition ends (due to stop() or error), don't automatically send.
-        // Sending will be handled by the "Stop Listening" button.
-      };
-    } else {
-      setError("Web Speech API is not supported in this browser.");
+  // Handle errors specifically from speech recognition if needed,
+  // though useSpeechRecognition handles a lot internally.
+  useEffect(() => {
+    if (!browserSupportsSpeechRecognition) {
+      setError("Browser does not support speech recognition.");
     }
-
-    // Cleanup on unmount
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
-    };
-  }, []); // Empty dependency array means this runs once on mount
+  }, [browserSupportsSpeechRecognition]);
 
   // Function to handle sending the prompt to the AI command endpoint
   const handleAskAI = async (currentPrompt = prompt) => {
@@ -136,7 +91,11 @@ export function SmartAssistantPage() {
     setError(null);
     setPlanAcceptedSuccess(null);
     setPlanAcceptedError(null);
-    setVoiceInputStatus(""); // Clear voice status
+
+    // Stop listening if it's active when sending the prompt manually or after voice input finishes
+    if (listening) {
+      SpeechRecognition.stopListening();
+    }
 
     try {
       const response = await axiosInstance.post("/ai/command", {
@@ -171,26 +130,26 @@ export function SmartAssistantPage() {
 
   // Function to start/stop voice input
   const handleVoiceInputToggle = () => {
-    if (recognitionRef.current) {
-      if (isListening) {
-        recognitionRef.current.stop(); // Stop recognition
-        setIsListening(false);
-        setVoiceInputStatus("");
-        if (prompt.trim()) {
-          // If there's a prompt, send it
-          handleAskAI(prompt);
-        }
-      } else {
-        setPrompt(""); // Clear prompt before starting voice input
-        setAiMessage("");
-        setSuggestedPlan(null);
-        setError(null);
-        setPlanAcceptedSuccess(null);
-        setPlanAcceptedError(null);
-        recognitionRef.current.start();
+    if (!browserSupportsSpeechRecognition) {
+      setError("Web Speech API is not supported in this browser.");
+      return;
+    }
+
+    if (listening) {
+      SpeechRecognition.stopListening();
+      // When stopping, if there's a transcript, send it as the prompt
+      if (transcript.trim()) {
+        handleAskAI(transcript);
       }
     } else {
-      setError("Web Speech API is not supported in this browser.");
+      resetTranscript(); // Clear previous transcript before starting
+      setPrompt(""); // Clear prompt state as well
+      setAiMessage("");
+      setSuggestedPlan(null);
+      setError(null);
+      setPlanAcceptedSuccess(null);
+      setPlanAcceptedError(null);
+      SpeechRecognition.startListening({ continuous: true }); // Start continuous listening
     }
   };
 
@@ -268,6 +227,16 @@ export function SmartAssistantPage() {
     }
   };
 
+  // Render null if browser doesn't support speech recognition, or show a message
+  if (!browserSupportsSpeechRecognition && !error) {
+    return (
+      <div className="text-red-400 p-4">
+        <XCircle className="w-5 h-5 inline-block mr-2" />
+        Speech Recognition is not supported by your browser. Please try Chrome or Edge.
+      </div>
+    );
+  }
+
   return (
     <motion.div
       className="space-y-8"
@@ -297,15 +266,15 @@ export function SmartAssistantPage() {
               className="min-h-[120px] bg-white/5 border-white/20 focus:border-[#3EB489] text-white placeholder-gray-400 rounded-md"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              disabled={isListening}
+              disabled={listening} // Disable manual typing while listening
             />
-            {isListening && (
+            {listening && (
               <p className="text-sm text-blue-400 flex items-center">
                 <Volume2 className="w-4 h-4 mr-2 animate-pulse" />{" "}
-                {voiceInputStatus || "Listening..."}
+                Listening... (Speak clearly)
               </p>
             )}
-            {error && !isListening && (
+            {error && (
               <p className="text-red-400 flex items-center">
                 <XCircle className="w-4 h-4 mr-2" /> {error}
               </p>
@@ -314,7 +283,7 @@ export function SmartAssistantPage() {
               <Button
                 className="flex-1 bg-gradient-to-r from-[#3EB489] to-[#2ea374] hover:from-[#2ea374] hover:to-[#3EB489] text-white rounded-md"
                 onClick={() => handleAskAI()}
-                disabled={loading || isListening}
+                disabled={loading || listening}
               >
                 {loading ? (
                   <>
@@ -331,15 +300,12 @@ export function SmartAssistantPage() {
               <Button
                 variant="outline"
                 className={`flex-1 border-white/20 text-gray-300 hover:bg-white/10 hover:text-white rounded-md ${
-                  isListening ? "bg-blue-600/20 text-blue-400" : ""
+                  listening ? "bg-blue-600/20 text-blue-400" : ""
                 }`}
                 onClick={handleVoiceInputToggle}
-                disabled={
-                  loading ||
-                  (!window.SpeechRecognition && !window.webkitSpeechRecognition)
-                }
+                disabled={loading || !browserSupportsSpeechRecognition}
               >
-                {isListening ? (
+                {listening ? (
                   <>
                     <VolumeX className="mr-2 h-4 w-4" /> Stop Listening
                   </>
